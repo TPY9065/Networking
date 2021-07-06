@@ -17,23 +17,25 @@ public:
 	uint32_t m_size;
 };
 
-template<typename CustomMessage>
+template<typename T>
 class NetMessage
 {
 public:
 	NetMessage();
-	NetMessage(uint32_t id, CustomMessage type, std::vector<uint32_t> body);
+	NetMessage(uint32_t id, T type, std::vector<uint32_t> body);
 	~NetMessage();
 	void Print();
 	// only change the body of the message
 	void operator=(std::vector<uint32_t> body);
 	// copy the whole message into *this
-	void operator=(NetMessage<CustomMessage> msg);
-	NetMessage<CustomMessage>& operator<<(uint32_t data);
-	NetMessage<CustomMessage>& operator>>(uint32_t& data);
+	void operator=(NetMessage<T> msg);
+	NetMessage<T>& operator<<(uint32_t data);
+	NetMessage<T>& operator>>(uint32_t& data);
 public:
 	// header for message
-	NetMessageHeader<CustomMessage> m_header;
+	NetMessageHeader<T> m_header;
 	// data to be sent
 	std::vector<uint32_t> m_body;
 };
+
+#include "NetMessage.cpp"

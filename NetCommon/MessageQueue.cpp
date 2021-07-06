@@ -1,3 +1,5 @@
+#ifndef _MESSAGEQUEUE_CPP_
+#define _MESSAGEQUEUE_CPP_
 #include "MessageQueue.h"
 
 template<typename T>
@@ -30,7 +32,7 @@ template<typename T>
 NetMessage<T> MessageQueue<T>::pop_back()
 {
 	m_mutex.lock();
-	NetMessage msg = m_messageQueue.back();
+	NetMessage<T> msg = m_messageQueue.back();
 	m_messageQueue.pop_back();
 	m_mutex.unlock();
 	return msg;
@@ -40,7 +42,7 @@ template<typename T>
 NetMessage<T> MessageQueue<T>::pop_front()
 {
 	m_mutex.lock();
-	T msg = m_messageQueue.front();
+	NetMessage<T> msg = m_messageQueue.front();
 	m_messageQueue.pop_front();
 	m_mutex.unlock();
 	return msg;
@@ -69,3 +71,5 @@ uint32_t MessageQueue<T>::size()
 {
 	return m_messageQueue.size();
 }
+
+#endif

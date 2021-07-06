@@ -43,3 +43,5 @@ public:
 	std::unordered_map<uint32_t, MessageQueue<T>>& m_messageIn;
 	MessageQueue<T>& m_messageOut;
 };
+
+#include "NetConnection.cpp"

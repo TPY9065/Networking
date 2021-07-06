@@ -1,8 +1,10 @@
+#ifndef _NETCONNECTION_CPP_
+#define _NETCONNECTION_CPP_
 #include "NetConnection.h"
 
 template<typename T>
-NetConnection<T>::NetConnection(NetConnection<T>::Owner a_owner, asio::ip::tcp::socket a_socket, asio::io_context& a_context, uint32_t id, std::unordered_map<uint32_t, MessageQueue<T>>& messageIn, MessageQueue<T>& messageOut)
-	: m_uid(id), m_socket(std::move(a_socket)), m_context(a_context), m_messageIn(messageIn), m_messageOut(messageOut), m_tempMsgBuf(), m_message(id, { 1,2,3 })
+NetConnection<T>::NetConnection(NetConnection::Owner a_owner, asio::ip::tcp::socket a_socket, asio::io_context& a_context, uint32_t id, std::unordered_map<uint32_t, MessageQueue<T>>& messageIn, MessageQueue<T>& messageOut)
+	: m_uid(id), m_socket(std::move(a_socket)), m_context(a_context), m_messageIn(messageIn), m_messageOut(messageOut), m_tempMsgBuf(), m_message()
 {
 	m_owner = a_owner;
 }
@@ -37,7 +39,7 @@ template<typename T>
 void NetConnection<T>::ReadMessageHeader()
 {
 	// read the message header, which contains the size of the body and id for identification, asynchronously
-	m_socket.async_receive(asio::buffer(&m_tempMsgBuf.m_header, sizeof(NetMessageHeader)),
+	m_socket.async_receive(asio::buffer(&m_tempMsgBuf.m_header, sizeof(NetMessageHeader<T>)),
 		[this](asio::error_code ec, size_t len)
 		{
 			if (!ec)
@@ -98,7 +100,7 @@ template<typename T>
 void NetConnection<T>::WriteMessageHeader()
 {
 	// write the message header, which contains the size of the body and id for identification, asynchronously
-	m_socket.async_send(asio::buffer(&m_message.m_header, sizeof(NetMessageHeader)),
+	m_socket.async_send(asio::buffer(&m_message.m_header, sizeof(NetMessageHeader<T>)),
 		[this](asio::error_code ec, size_t len)
 		{
 			// if no error occured during writing message header, ready for writing message body, otherwise, diconnect the connection
@@ -152,3 +154,5 @@ bool NetConnection<T>::IsAlive()
 {
 	return m_socket.is_open();
 }
+
+#endif // !_NETCONNECTION_CPP_

@@ -1,17 +1,19 @@
 #include "NetServer.h"
 
-enum CustomMessage
+enum class Protocal : uint32_t
 {
-	PING_SERVER = 0,
+	IDLE = 0,
+	PING_SERVER,
 	GET_ID,
 	MESSAGE_ALL,
-	DISCONNECT
+	DISCONNECT,
+	MESSAGE_NUM
 };
 
 int main()
 {
 	// construct a server obj
-	NetServer server;
+	NetServer<Protocal> server;
 	// start the server
 	server.Start();
 	// start listening

@@ -1,3 +1,5 @@
+#ifndef _NETCLIENT_CPP_
+#define _NETCLIENT_CPP_
 #include "NetClient.h"
 
 template<typename T>
@@ -73,7 +75,7 @@ void NetClient<T>::Disconnect()
 template<typename T>
 void NetClient<T>::Update()
 {
-	// check if there is any message sent from the server, if yes, pop from the message queue and print it on screen
+	// check if there is any message received, if yes, pop from the message queue and print it on screen
 	if (!m_messageIn.empty())
 	{
 		std::cout << "Server: " << std::endl;
@@ -86,3 +88,5 @@ bool NetClient<T>::IsConnected()
 {
 	return m_connection->IsAlive();
 }
+
+#endif
