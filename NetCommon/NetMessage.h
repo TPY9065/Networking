@@ -28,9 +28,9 @@ public:
 	// only change the body of the message
 	void operator=(std::vector<uint32_t> body);
 	// copy the whole message into *this
-	void operator=(NetMessage msg);
-	NetMessage& operator<<(uint32_t data);
-	NetMessage& operator>>(uint32_t& data);
+	void operator=(NetMessage<CustomMessage> msg);
+	NetMessage<CustomMessage>& operator<<(uint32_t data);
+	NetMessage<CustomMessage>& operator>>(uint32_t& data);
 public:
 	// header for message
 	NetMessageHeader<CustomMessage> m_header;

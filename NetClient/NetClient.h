@@ -1,7 +1,7 @@
 #pragma once
-
 #include <Networking.h>
 
+template<typename T>
 class NetClient
 {
 public:
@@ -23,10 +23,10 @@ public:
 	// id
 	uint32_t m_uid;
 	// connection
-	std::unique_ptr<NetConnection> m_connection;
+	std::unique_ptr<NetConnection<T>> m_connection;
 	// incoming message queue
-	std::unordered_map<uint32_t, MessageQueue> m_messageIn;
+	std::unordered_map<uint32_t, MessageQueue<T>> m_messageIn;
 	// outgoing message queue
-	MessageQueue m_messageOut;
+	MessageQueue<T> m_messageOut;
 };
 

@@ -6,19 +6,20 @@ enum CustomMessage
 	PING_SERVER = 0,
 	GET_ID,
 	MESSAGE_ALL,
-	DISCONNECT
+	DISCONNECT,
+	MESSAGE_NUM
 };
 
 int main()
 {
 	const HWND window2 = GetForegroundWindow();
-	NetClient client;
+	NetClient<CustomMessage> client;
 	client.ConnectToServer();
-	NetMessage msgA(0, { 2,3,4,5,6 });
-	NetMessage msgB(0, { 3,4,5,6,7 });
-	NetMessage msgC(0, { 4,5,6,7,8 });
-	NetMessage msgD(0, { 5,6,7,8,9 });
-	NetMessage msgE(0, { 6,7,8,9,10 });
+	NetMessage<CustomMessage> msgA(0, PING_SERVER, { 2,3,4,5,6 });
+	NetMessage<CustomMessage> msgB(0, GET_ID, { 3,4,5,6,7 });
+	NetMessage<CustomMessage> msgC(0, MESSAGE_ALL, { 4,5,6,7,8 });
+	NetMessage<CustomMessage> msgD(0, DISCONNECT, { 5,6,7,8,9 });
+	NetMessage<CustomMessage> msgE(0, MESSAGE_NUM, { 6,7,8,9,10 });
 	bool Apressed = false;
 	bool Bpressed = false;
 	bool Cpressed = false;

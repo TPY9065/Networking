@@ -4,6 +4,7 @@
 #include "NetMessage.h"
 #include "MessageQueue.h"
 
+template<typename T>
 class NetConnection
 {
 public:
@@ -13,7 +14,7 @@ public:
 		Client
 	};
 public:
-	NetConnection(Owner a_owner, asio::ip::tcp::socket a_socket, asio::io_context& a_context, uint32_t id, std::unordered_map<uint32_t, MessageQueue>& messageIn, MessageQueue& messageOut);
+	NetConnection(Owner a_owner, asio::ip::tcp::socket a_socket, asio::io_context& a_context, uint32_t id, std::unordered_map<uint32_t, MessageQueue<T>>& messageIn, MessageQueue<T>& messageOut);
 	~NetConnection();
 	void ConnectToServer(asio::ip::tcp::endpoint& endpoint);
 	void ConnectToClient();
@@ -25,8 +26,6 @@ public:
 	void WriteMessageBody();
 	void Disconnect();
 	bool IsAlive();
-	Owner GetOwner();
-	uint32_t GetId();
 public:
 	// id used for identification
 	uint32_t m_uid;
@@ -37,10 +36,10 @@ public:
 	// I/O context for asio
 	asio::io_context& m_context;
 	// buffer for message
-	NetMessage m_message;
+	NetMessage<T> m_message;
 	// temperory message buffer
-	NetMessage m_tempMsgBuf;
+	NetMessage<T> m_tempMsgBuf;
 	// incoming/outgoing message queue
-	std::unordered_map<uint32_t, MessageQueue>& m_messageIn;
-	MessageQueue& m_messageOut;
+	std::unordered_map<uint32_t, MessageQueue<T>>& m_messageIn;
+	MessageQueue<T>& m_messageOut;
 };

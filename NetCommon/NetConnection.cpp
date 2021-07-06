@@ -1,12 +1,14 @@
 #include "NetConnection.h"
 
-NetConnection::NetConnection(NetConnection::Owner a_owner, asio::ip::tcp::socket a_socket, asio::io_context& a_context, uint32_t id, std::unordered_map<uint32_t, MessageQueue>& messageIn, MessageQueue& messageOut)
+template<typename T>
+NetConnection<T>::NetConnection(NetConnection<T>::Owner a_owner, asio::ip::tcp::socket a_socket, asio::io_context& a_context, uint32_t id, std::unordered_map<uint32_t, MessageQueue<T>>& messageIn, MessageQueue<T>& messageOut)
 	: m_uid(id), m_socket(std::move(a_socket)), m_context(a_context), m_messageIn(messageIn), m_messageOut(messageOut), m_tempMsgBuf(), m_message(id, { 1,2,3 })
 {
 	m_owner = a_owner;
 }
 
-NetConnection::~NetConnection()
+template<typename T>
+NetConnection<T>::~NetConnection()
 {
 	if (m_socket.is_open())
 	{
@@ -15,20 +17,24 @@ NetConnection::~NetConnection()
 	std::cout << "Client ID[" << m_uid << "]" << std::endl;
 }
 
-void NetConnection::ConnectToServer(asio::ip::tcp::endpoint& endpoint)
+template<typename T>
+void NetConnection<T>::ConnectToServer(asio::ip::tcp::endpoint& endpoint)
 {
 }
 
-void NetConnection::ConnectToClient()
+template<typename T>
+void NetConnection<T>::ConnectToClient()
 {
 }
 
-void NetConnection::ReadMessage()
+template<typename T>
+void NetConnection<T>::ReadMessage()
 {
 
 }
 
-void NetConnection::ReadMessageHeader()
+template<typename T>
+void NetConnection<T>::ReadMessageHeader()
 {
 	// read the message header, which contains the size of the body and id for identification, asynchronously
 	m_socket.async_receive(asio::buffer(&m_tempMsgBuf.m_header, sizeof(NetMessageHeader)),
@@ -54,7 +60,8 @@ void NetConnection::ReadMessageHeader()
 		});
 }
 
-void NetConnection::ReadMessageBody()
+template<typename T>
+void NetConnection<T>::ReadMessageBody()
 {
 	// read the message body, which contains the main data, asynchronously
 	m_socket.async_receive(asio::buffer(m_tempMsgBuf.m_body.data(), m_tempMsgBuf.m_header.m_size * sizeof(uint32_t)),
@@ -75,7 +82,8 @@ void NetConnection::ReadMessageBody()
 		});
 }
 
-void NetConnection::WriteMessage()
+template<typename T>
+void NetConnection<T>::WriteMessage()
 {
 	// check if there is any waiting message for sending, if yes, ready to write message header
 	if (!m_messageOut.empty())
@@ -86,7 +94,8 @@ void NetConnection::WriteMessage()
 	}
 }
 
-void NetConnection::WriteMessageHeader()
+template<typename T>
+void NetConnection<T>::WriteMessageHeader()
 {
 	// write the message header, which contains the size of the body and id for identification, asynchronously
 	m_socket.async_send(asio::buffer(&m_message.m_header, sizeof(NetMessageHeader)),
@@ -106,7 +115,8 @@ void NetConnection::WriteMessageHeader()
 	);
 }
 
-void NetConnection::WriteMessageBody()
+template<typename T>
+void NetConnection<T>::WriteMessageBody()
 {
 	// write the message header, which contains the main data, asynchronously
 	m_socket.async_send(asio::buffer(m_message.m_body.data(), m_message.m_header.m_size * sizeof(uint32_t)),
@@ -126,7 +136,8 @@ void NetConnection::WriteMessageBody()
 	);
 }
 
-void NetConnection::Disconnect()
+template<typename T>
+void NetConnection<T>::Disconnect()
 {
 	if (m_socket.is_open())
 		m_socket.close();
@@ -136,17 +147,8 @@ void NetConnection::Disconnect()
 		std::cout << "Disconnected from the server." << std::endl;
 }
 
-bool NetConnection::IsAlive()
+template<typename T>
+bool NetConnection<T>::IsAlive()
 {
 	return m_socket.is_open();
-}
-
-NetConnection::Owner NetConnection::GetOwner()
-{
-	return m_owner;
-}
-
-uint32_t NetConnection::GetId()
-{
-	return m_uid;
 }

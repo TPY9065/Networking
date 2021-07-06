@@ -1,16 +1,19 @@
 #include "NetClient.h"
 
-NetClient::NetClient() : m_socket(m_context), m_uid(0)
+template<typename T>
+NetClient<T>::NetClient() : m_socket(m_context), m_uid(0)
 {	
 
 }
 
-NetClient::~NetClient()
+template<typename T>
+NetClient<T>::~NetClient()
 {
 
 }
 
-void NetClient::ConnectToServer()
+template<typename T>
+void NetClient<T>::ConnectToServer()
 {
 	m_thread = std::thread([this]() {m_context.run(); });
 	// define the endpoint to be connected
@@ -23,7 +26,7 @@ void NetClient::ConnectToServer()
 			if (!ec)
 			{
 				// keep the connection alive
-				m_connection = std::make_unique<NetConnection>(NetConnection::Owner::Client, std::move(m_socket), m_context, 0, m_messageIn, m_messageOut);
+				m_connection = std::make_unique<NetConnection<T>>(NetConnection<T>::Owner::Client, std::move(m_socket), m_context, 0, m_messageIn, m_messageOut);
 				ReadMessage();
 			}
 			else
@@ -32,7 +35,8 @@ void NetClient::ConnectToServer()
 	);
 }
 
-void NetClient::ReadMessage()
+template<typename T>
+void NetClient<T>::ReadMessage()
 {
 	// check if the connection is still alive
 	if (m_connection->IsAlive())
@@ -43,7 +47,8 @@ void NetClient::ReadMessage()
 		Disconnect();
 }
 
-void NetClient::WriteMessage()
+template<typename T>
+void NetClient<T>::WriteMessage()
 {
 	// check if the connection is still alive
 	if (m_connection->IsAlive())
@@ -54,7 +59,8 @@ void NetClient::WriteMessage()
 		Disconnect();
 }
 
-void NetClient::Disconnect()
+template<typename T>
+void NetClient<T>::Disconnect()
 {
 	// check if the current connection is alive, if yes, disconnected it, otherwise, do nothing
 	if (m_connection->IsAlive())
@@ -64,7 +70,8 @@ void NetClient::Disconnect()
 	}
 }
 
-void NetClient::Update()
+template<typename T>
+void NetClient<T>::Update()
 {
 	// check if there is any message sent from the server, if yes, pop from the message queue and print it on screen
 	if (!m_messageIn.empty())
@@ -74,7 +81,8 @@ void NetClient::Update()
 	}
 }
 
-bool NetClient::IsConnected()
+template<typename T>
+bool NetClient<T>::IsConnected()
 {
 	return m_connection->IsAlive();
 }
