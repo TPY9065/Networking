@@ -15,7 +15,7 @@ public:
 	void WriteMessageToAllClient(std::shared_ptr<NetConnection> from);
 	void Disconnect(std::shared_ptr<NetConnection> connection);
 	void Update();
-private:
+public:
 	// context for I/O services
 	asio::io_context m_context;
 	// acceptor for accepting connection
@@ -27,10 +27,9 @@ private:
 	// socket for sending message to client
 	asio::ip::tcp::socket m_socket;
 	// incoming message queue
-	MessageQueue m_messageIn;
-	// outgoing message queue
+	std::unordered_map<uint32_t, MessageQueue> m_messageIn;
 	MessageQueue m_messageOut;
 	// no of connections alived, also used for identification
-	uint16_t m_uid = 10000;
+	uint32_t m_uid = 10000;
 };
 

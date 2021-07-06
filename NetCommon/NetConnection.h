@@ -13,10 +13,11 @@ public:
 		Client
 	};
 public:
-	NetConnection(Owner a_owner, asio::ip::tcp::socket a_socket, asio::io_context& a_context, uint16_t id, MessageQueue& messageIn, MessageQueue& messageOut);
+	NetConnection(Owner a_owner, asio::ip::tcp::socket a_socket, asio::io_context& a_context, uint32_t id, std::unordered_map<uint32_t, MessageQueue>& messageIn, MessageQueue& messageOut);
 	~NetConnection();
 	void ConnectToServer(asio::ip::tcp::endpoint& endpoint);
 	void ConnectToClient();
+	void ReadMessage();
 	void ReadMessageHeader();
 	void ReadMessageBody();
 	void WriteMessage();
@@ -25,10 +26,10 @@ public:
 	void Disconnect();
 	bool IsAlive();
 	Owner GetOwner();
-	uint16_t GetId();
+	uint32_t GetId();
 public:
 	// id used for identification
-	uint16_t m_id;
+	uint32_t m_uid;
 	// owner of the connetion
 	Owner m_owner;
 	// socket for connection
@@ -40,6 +41,6 @@ public:
 	// temperory message buffer
 	NetMessage m_tempMsgBuf;
 	// incoming/outgoing message queue
-	MessageQueue& m_messageIn;
+	std::unordered_map<uint32_t, MessageQueue>& m_messageIn;
 	MessageQueue& m_messageOut;
 };

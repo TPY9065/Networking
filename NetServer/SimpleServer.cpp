@@ -1,5 +1,13 @@
 #include "NetServer.h"
 
+enum CustomMessage
+{
+	PING_SERVER = 0,
+	GET_ID,
+	MESSAGE_ALL,
+	DISCONNECT
+};
+
 int main()
 {
 	// construct a server obj
@@ -8,6 +16,8 @@ int main()
 	server.Start();
 	// start listening
 	while (true)
+	{
 		server.Update();
+	}
 	return 0;
 }

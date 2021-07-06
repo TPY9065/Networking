@@ -1,7 +1,7 @@
 #include "NetConnection.h"
 
-NetConnection::NetConnection(NetConnection::Owner a_owner, asio::ip::tcp::socket a_socket, asio::io_context& a_context, uint16_t id, MessageQueue& messageIn, MessageQueue& messageOut)
-	: m_id(id), m_socket(std::move(a_socket)), m_context(a_context), m_messageIn(messageIn), m_messageOut(messageOut), m_tempMsgBuf(), m_message(id, {1,2,3})
+NetConnection::NetConnection(NetConnection::Owner a_owner, asio::ip::tcp::socket a_socket, asio::io_context& a_context, uint32_t id, std::unordered_map<uint32_t, MessageQueue>& messageIn, MessageQueue& messageOut)
+	: m_uid(id), m_socket(std::move(a_socket)), m_context(a_context), m_messageIn(messageIn), m_messageOut(messageOut), m_tempMsgBuf(), m_message(id, { 1,2,3 })
 {
 	m_owner = a_owner;
 }
@@ -12,7 +12,7 @@ NetConnection::~NetConnection()
 	{
 		Disconnect();
 	}
-	std::cout << "Client ID[" << m_id << "]" << std::endl;
+	std::cout << "Client ID[" << m_uid << "]" << std::endl;
 }
 
 void NetConnection::ConnectToServer(asio::ip::tcp::endpoint& endpoint)
@@ -21,6 +21,11 @@ void NetConnection::ConnectToServer(asio::ip::tcp::endpoint& endpoint)
 
 void NetConnection::ConnectToClient()
 {
+}
+
+void NetConnection::ReadMessage()
+{
+
 }
 
 void NetConnection::ReadMessageHeader()
@@ -58,7 +63,7 @@ void NetConnection::ReadMessageBody()
 			if (!ec)
 			{
 				// push the newly received message into incoming message queue
-				m_messageIn.push_back(m_tempMsgBuf);
+				m_messageIn[m_uid].push_back(m_tempMsgBuf);
 				// back to read next message header
 				ReadMessageHeader();
 			}
@@ -76,6 +81,7 @@ void NetConnection::WriteMessage()
 	if (!m_messageOut.empty())
 	{
 		m_message = m_messageOut.pop_front();
+		m_message.m_header.m_uid = m_uid;
 		WriteMessageHeader();
 	}
 }
@@ -109,7 +115,6 @@ void NetConnection::WriteMessageBody()
 			// if no error occured during writing message body, back to write next message header, otherwise, diconnect the connection
 			if (!ec)
 			{
-				std::cout << "Message sent!" << std::endl;
 				WriteMessage();
 			}
 			else
@@ -126,7 +131,7 @@ void NetConnection::Disconnect()
 	if (m_socket.is_open())
 		m_socket.close();
 	if (m_owner == Owner::Server)
-		std::cout << "[SERVER] Client ID[" << m_id << "] is disconnected." << std::endl;
+		std::cout << "[SERVER] Client ID[" << m_uid << "] is disconnected." << std::endl;
 	else if (m_owner == Owner::Client)
 		std::cout << "Disconnected from the server." << std::endl;
 }
@@ -141,7 +146,7 @@ NetConnection::Owner NetConnection::GetOwner()
 	return m_owner;
 }
 
-uint16_t NetConnection::GetId()
+uint32_t NetConnection::GetId()
 {
-	return m_id;
+	return m_uid;
 }

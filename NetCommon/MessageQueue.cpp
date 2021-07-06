@@ -40,6 +40,16 @@ NetMessage MessageQueue::pop_front()
 	return msg;
 }
 
+NetMessage& MessageQueue::back()
+{
+	return m_messageQueue.back();
+}
+
+NetMessage& MessageQueue::front()
+{
+	return m_messageQueue.front();
+}
+
 bool MessageQueue::empty()
 {
 	return m_messageQueue.empty();

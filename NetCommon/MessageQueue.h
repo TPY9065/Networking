@@ -12,6 +12,8 @@ public:
 	void push_front(NetMessage msg);
 	NetMessage pop_back();
 	NetMessage pop_front();
+	NetMessage& back();
+	NetMessage& front();
 	bool empty();
 	uint32_t size();
 public:

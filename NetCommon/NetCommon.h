@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 #include <deque>
 #include <mutex>
 #include <thread>

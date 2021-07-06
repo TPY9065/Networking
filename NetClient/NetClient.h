@@ -25,7 +25,7 @@ public:
 	// connection
 	std::unique_ptr<NetConnection> m_connection;
 	// incoming message queue
-	MessageQueue m_messageIn;
+	std::unordered_map<uint32_t, MessageQueue> m_messageIn;
 	// outgoing message queue
 	MessageQueue m_messageOut;
 };

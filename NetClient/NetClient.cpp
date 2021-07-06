@@ -69,8 +69,8 @@ void NetClient::Update()
 	// check if there is any message sent from the server, if yes, pop from the message queue and print it on screen
 	if (!m_messageIn.empty())
 	{
-		NetMessage msg = m_messageIn.pop_front();
-		msg.Print();
+		std::cout << "Server: " << std::endl;
+		m_messageIn[m_uid].pop_front().Print();
 	}
 }
 

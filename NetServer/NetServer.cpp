@@ -75,14 +75,14 @@ void NetServer::WriteMessageToAllClient(std::shared_ptr<NetConnection> from)
 {
 	// write message to all client, except the one who send message
 	std::deque<std::shared_ptr<NetConnection>> disconnectedConnections;
-	for (int i = 0; i < m_connections.size(); i++)
-		if (m_connections[i] != from && m_connections[i]->IsAlive())
-			m_connections[i]->WriteMessageHeader();
+	for (auto connection = m_connections.begin(); connection != m_connections.end(); connection++)
+		if (*connection != from && (*connection)->IsAlive())
+			(*connection)->WriteMessageHeader();
 		else
-			disconnectedConnections.push_back(m_connections[i]);
+			disconnectedConnections.push_back((*connection));
 
-	for (int i = 0; i < disconnectedConnections.size(); i++)
-		Disconnect(disconnectedConnections[i]);
+	for (auto disconnectedConnection = disconnectedConnections.begin(); disconnectedConnection != disconnectedConnections.end(); disconnectedConnection++)
+		Disconnect((*disconnectedConnection));
 }
 
 void NetServer::Disconnect(std::shared_ptr<NetConnection> connection)
@@ -95,10 +95,11 @@ void NetServer::Disconnect(std::shared_ptr<NetConnection> connection)
 
 void NetServer::Update()
 {
-	// check if there is any message sent from the server, if yes, pop from the message queue and print it on screen
-	if (!m_messageIn.empty())
-	{
-		NetMessage msg = m_messageIn.pop_front();
-		msg.Print();
-	}
+	// check if there is any message sent from the client, if yes, pop out from the message queue and print it on screen
+	for (auto client = m_messageIn.begin(); client != m_messageIn.end(); client++)
+		if (!client->second.empty())
+		{
+			std::cout << "Client ID[" << client->first << "]: " << std::endl;
+			client->second.pop_front().Print();
+		}
 }
