@@ -79,8 +79,14 @@ void NetClient<T>::Update()
 	if (!m_messageIn.empty())
 	{
 		std::cout << "Server: " << std::endl;
-		m_messageIn[m_uid].pop_front().Print();
+		m_messageIn.pop_front().Print();
 	}
+}
+
+template<typename CustomMessage>
+uint32_t NetClient<CustomMessage>::Hash(uint32_t plaintext)
+{
+	return (11 * plaintext + 4) % 26;
 }
 
 template<typename T>

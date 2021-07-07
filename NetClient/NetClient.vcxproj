@@ -159,11 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="NetClient.cpp" />
     <ClCompile Include="SimpleClient.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="NetClient.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -159,10 +159,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="NetServer.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="NetServer.cpp" />
     <ClCompile Include="SimpleServer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

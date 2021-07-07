@@ -1,12 +1,14 @@
 #include "NetCommon/NetMessage.h"
 
-struct Test
+enum Test
 {
-	char* a;
+	A = 0,
+	B
 };
 
 int main()
 {
-
+	std::cout << Test::A << std::endl;
+	std::cout << (Test)-1 << std::endl;
 	return 0;
 }

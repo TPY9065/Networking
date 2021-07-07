@@ -1,5 +1,6 @@
 #pragma once
-#include <Networking.h>
+#include "NetConnection.h"
+#include "MessageQueue.h"
 
 template<typename CustomMessage>
 class NetClient
@@ -11,7 +12,8 @@ public:
 	void ConnectToServer();
 	void ReadMessage();
 	void WriteMessage();
-	void Update();
+	virtual void Update();
+	uint32_t Hash(uint32_t plaintext);
 	bool IsConnected();
 public:
 	// context to write message by using asio
@@ -25,7 +27,7 @@ public:
 	// connection
 	std::unique_ptr<NetConnection<CustomMessage>> m_connection;
 	// incoming message queue
-	std::unordered_map<uint32_t, MessageQueue<CustomMessage>> m_messageIn;
+	MessageQueue<CustomMessage> m_messageIn;
 	// outgoing message queue
 	MessageQueue<CustomMessage> m_messageOut;
 };

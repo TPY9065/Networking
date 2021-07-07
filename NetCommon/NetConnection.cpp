@@ -3,7 +3,7 @@
 #include "NetConnection.h"
 
 template<typename T>
-NetConnection<T>::NetConnection(NetConnection::Owner a_owner, asio::ip::tcp::socket a_socket, asio::io_context& a_context, uint32_t id, std::unordered_map<uint32_t, MessageQueue<T>>& messageIn, MessageQueue<T>& messageOut)
+NetConnection<T>::NetConnection(NetConnection::Owner a_owner, asio::ip::tcp::socket a_socket, asio::io_context& a_context, uint32_t id, MessageQueue<T>& messageIn, MessageQueue<T>& messageOut)
 	: m_uid(id), m_socket(std::move(a_socket)), m_context(a_context), m_messageIn(messageIn), m_messageOut(messageOut), m_tempMsgBuf(), m_message()
 {
 	m_owner = a_owner;
@@ -72,7 +72,10 @@ void NetConnection<T>::ReadMessageBody()
 			if (!ec)
 			{
 				// push the newly received message into incoming message queue
-				m_messageIn[m_uid].push_back(m_tempMsgBuf);
+				m_messageIn.push_back(m_tempMsgBuf);
+				// if the owner of the connection is client, check if the message received is acknowledge
+				if (m_owner == NetConnection::Owner::Client && m_tempMsgBuf.m_header.m_flag == (T)0)
+					m_uid = m_tempMsgBuf.m_body[0];
 				// back to read next message header
 				ReadMessageHeader();
 			}
@@ -91,7 +94,7 @@ void NetConnection<T>::WriteMessage()
 	if (!m_messageOut.empty())
 	{
 		m_message = m_messageOut.pop_front();
-		m_message.m_header.m_uid = m_uid;
+		m_message.m_header.m_source_id = m_uid;
 		WriteMessageHeader();
 	}
 }
@@ -147,6 +150,12 @@ void NetConnection<T>::Disconnect()
 		std::cout << "[SERVER] Client ID[" << m_uid << "] is disconnected." << std::endl;
 	else if (m_owner == Owner::Client)
 		std::cout << "Disconnected from the server." << std::endl;
+}
+
+template<typename CustomMessage>
+uint32_t NetConnection<CustomMessage>::Hash(uint32_t plaintext)
+{
+	return (11 * plaintext + 4) % 26;
 }
 
 template<typename T>

@@ -6,13 +6,13 @@ template<typename T>
 class NetMessageHeader
 {
 public:
-	NetMessageHeader(uint32_t id);
+	NetMessageHeader();
 	NetMessageHeader(uint32_t id, T type, uint32_t size);
 public:
-	// client id
-	uint32_t m_uid;
+	// sender id
+	uint32_t m_source_id;
 	// message type
-	T m_type;
+	T m_flag;
 	// body size in byte
 	uint32_t m_size;
 };

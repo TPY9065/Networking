@@ -41,12 +41,15 @@ void NetServer<CustomMessage>::WaitForConnection()
 				std::cout << "[SERVER] New Connection: " << socket.remote_endpoint() << "\n";
 				// keep the new connection alive
 				std::shared_ptr<NetConnection<CustomMessage>> newConnecion = std::make_shared<NetConnection<CustomMessage>>(NetConnection<CustomMessage>::Owner::Server, std::move(socket), m_context, m_uid, m_messageIn, m_messageOut);
-				m_connections.push_back(std::move(newConnecion));
+				m_connections[m_uid] = std::move(newConnecion);
 
 				// send message to inform client that the connection is accepted
-				// WriteMessageToClient(m_connections.back());
+				NetMessage<CustomMessage> ack(0, (CustomMessage)0, { m_uid });
+				m_connections[m_uid]->m_messageOut.push_back(ack);
+				m_connections[m_uid]->WriteMessage();
+
 				// start reading message from clients
-				ReadMessageFromClient(m_connections.back());
+				ReadMessageFromClient(m_connections[m_uid]);
 
 				// id for next connection + 1
 				m_uid += 1;
@@ -71,24 +74,27 @@ void NetServer<CustomMessage>::ReadMessageFromClient(std::shared_ptr<NetConnecti
 }
 
 template<typename CustomMessage>
-void NetServer<CustomMessage>::WriteMessageToClient(std::shared_ptr<NetConnection<CustomMessage>> connection)
+void NetServer<CustomMessage>::MessageToClient(NetMessage<CustomMessage> msg, uint32_t id)
 {
-	if (connection->IsAlive())
-		connection->WriteMessageHeader();
+	if (m_connections[id]->IsAlive())
+	{
+		m_connections[id]->m_messageOut.push_back(msg);
+		m_connections[id]->WriteMessage();
+	}
 	else
-		Disconnect(connection);
+		Disconnect(m_connections[id]);
 }
 
 template<typename CustomMessage>
-void NetServer<CustomMessage>::WriteMessageToAllClient(std::shared_ptr<NetConnection<CustomMessage>> from)
+void NetServer<CustomMessage>::MessageToAllClient(NetMessage<CustomMessage> msg, std::shared_ptr<NetConnection<CustomMessage>> from)
 {
 	// write message to all client, except the one who send message
 	std::deque<std::shared_ptr<NetConnection>> disconnectedConnections;
 	for (auto connection = m_connections.begin(); connection != m_connections.end(); connection++)
-		if (*connection != from && (*connection)->IsAlive())
-			(*connection)->WriteMessageHeader();
+		if (connection->second != from && connection->second->IsAlive())
+			connection->second->WriteMessageHeader();
 		else
-			disconnectedConnections.push_back((*connection));
+			disconnectedConnections.push_back(connection->second);
 
 	for (auto disconnectedConnection = disconnectedConnections.begin(); disconnectedConnection != disconnectedConnections.end(); disconnectedConnection++)
 		Disconnect((*disconnectedConnection));
@@ -98,7 +104,7 @@ template<typename CustomMessage>
 void NetServer<CustomMessage>::Disconnect(std::shared_ptr<NetConnection<CustomMessage>> connection)
 {
 	// remove the pointer from the container/manager first, otherwise remove will not work after reset
-	m_connections.erase(std::remove(m_connections.begin(), m_connections.end(), connection), m_connections.end());
+	m_connections[connection->m_uid].reset();
 	// Destroy the objcet point by the pointer
 	connection.reset();
 }
@@ -107,13 +113,16 @@ template<typename CustomMessage>
 void NetServer<CustomMessage>::Update()
 {
 	// check if there is any message sent from the client, if yes, pop out from the message queue and print it on screen
-	for (auto client = m_messageIn.begin(); client != m_messageIn.end(); client++)
-		if (!client->second.empty())
-		{
-			std::cout << "Client ID[" << client->first << "]: " << std::endl;
-			NetMessage<CustomMessage> msg = client->second.pop_front();
-			msg.Print();
-		}
+	if (!m_messageIn.empty())
+	{
+		m_messageIn.pop_front().Print();
+	}
+}
+
+template<typename CustomMessage>
+uint32_t NetServer<CustomMessage>::Hash(uint32_t plaintext)
+{
+	return (11 * plaintext + 4) % 26;
 }
 
 #endif // !_NETSERVER_CPP_

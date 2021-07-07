@@ -3,7 +3,8 @@
 
 enum class Protocal: uint32_t
 {
-	IDLE = 0,
+	ACK = 0,
+	IDLE,
 	PING_SERVER,
 	GET_ID,
 	MESSAGE_ALL,
@@ -11,16 +12,53 @@ enum class Protocal: uint32_t
 	MESSAGE_NUM
 };
 
+class Client : public NetClient<Protocal>
+{
+public:
+	void Update() override
+	{
+		if (!m_messageIn.empty())
+		{
+			std::cout << "Message received" << std::endl;
+			NetMessage<Protocal> msg = m_messageIn.pop_front();
+			switch (msg.m_header.m_flag)
+			{
+			case Protocal::ACK:
+				std::cout << "Connection is accepted. Your ID is " << std::endl;
+				msg.Print();
+				break;
+			case Protocal::IDLE:
+				std::cout << "IDLE" << std::endl;
+				break;
+			case Protocal::PING_SERVER:
+				std::cout << "PING_SERVER" << std::endl;
+				break;
+			case Protocal::GET_ID:
+				std::cout << "GET_ID" << std::endl;
+				break;
+			case Protocal::MESSAGE_ALL:
+				std::cout << "MESSAGE_ALL" << std::endl;
+				break;
+			case Protocal::DISCONNECT:
+				std::cout << "DISCONNECT" << std::endl;
+				break;
+			default:
+				break;
+			}
+		}
+	}
+};
+
 int main()
 {
 	const HWND window2 = GetForegroundWindow();
-	NetClient<Protocal> client;
+	Client client;
 	client.ConnectToServer();
-	NetMessage<Protocal> msgA(0, Protocal::IDLE, { 2,3,4,5,6 });
-	NetMessage<Protocal> msgB(0, Protocal::PING_SERVER, { 3,4,5,6,7 });
-	NetMessage<Protocal> msgC(0, Protocal::GET_ID, { 4,5,6,7,8 });
-	NetMessage<Protocal> msgD(0, Protocal::MESSAGE_ALL, { 5,6,7,8,9 });
-	NetMessage<Protocal> msgE(0, Protocal::DISCONNECT, { 6,7,8,9,10 });
+	NetMessage<Protocal> msgA(client.m_uid, Protocal::IDLE, { 2,3,4,5,6 });
+	NetMessage<Protocal> msgB(client.m_uid, Protocal::PING_SERVER, { 3,4,5,6,7 });
+	NetMessage<Protocal> msgC(client.m_uid, Protocal::GET_ID, { 4,5,6,7,8 });
+	NetMessage<Protocal> msgD(client.m_uid, Protocal::MESSAGE_ALL, { 5,6,7,8,9 });
+	NetMessage<Protocal> msgE(client.m_uid, Protocal::DISCONNECT, { 6,7,8,9,10 });
 	bool Apressed = false;
 	bool Bpressed = false;
 	bool Cpressed = false;
