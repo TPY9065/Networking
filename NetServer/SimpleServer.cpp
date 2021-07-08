@@ -2,8 +2,7 @@
 
 enum class Protocal : uint32_t
 {
-	ACK = 0,
-	IDLE,
+	IDLE = 0,
 	PING_SERVER,
 	GET_ID,
 	MESSAGE_ALL,
@@ -14,19 +13,17 @@ enum class Protocal : uint32_t
 class Server : public NetServer<Protocal>
 {
 public:
-	void Update() override
+	void Update()
 	{
 		if (!m_messageIn.empty())
 		{
 			NetMessage<Protocal> msg = m_messageIn.pop_front();
 			std::cout << "Client ID[" << msg.m_header.m_source_id << "]: " << std::endl;
 			msg.Print();
-			/*
 			switch (msg.m_header.m_flag)
 			{
 			case Protocal::IDLE:
 				std::cout << "IDLE" << std::endl;
-				//MessageToClient(msg, msg.m_header.m_uid);
 				break;
 			case Protocal::PING_SERVER:
 				std::cout << "PING_SERVER" << std::endl;
@@ -43,8 +40,13 @@ public:
 			default:
 				break;
 			}
-			*/
+			std::cout << std::endl;
 		}
+	}
+	void Run()
+	{
+		while (true)
+			Update();
 	}
 };
 
@@ -54,10 +56,7 @@ int main()
 	Server server;
 	// start the server
 	server.Start();
-	// start listening
-	while (true)
-	{
-		server.Update();
-	}
+	// run the server
+	server.Run();
 	return 0;
 }

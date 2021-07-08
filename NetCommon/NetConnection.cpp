@@ -7,6 +7,7 @@ NetConnection<T>::NetConnection(NetConnection::Owner a_owner, asio::ip::tcp::soc
 	: m_uid(id), m_socket(std::move(a_socket)), m_context(a_context), m_messageIn(messageIn), m_messageOut(messageOut), m_tempMsgBuf(), m_message()
 {
 	m_owner = a_owner;
+	m_ack = false;
 }
 
 template<typename T>
@@ -71,11 +72,12 @@ void NetConnection<T>::ReadMessageBody()
 		{
 			if (!ec)
 			{
+				if (m_owner == Owner::Client && m_tempMsgBuf.m_header.m_flag == static_cast<T>(HandShake::ACK))
+					m_uid = m_tempMsgBuf.m_body[0];
+
 				// push the newly received message into incoming message queue
 				m_messageIn.push_back(m_tempMsgBuf);
-				// if the owner of the connection is client, check if the message received is acknowledge
-				if (m_owner == NetConnection::Owner::Client && m_tempMsgBuf.m_header.m_flag == (T)0)
-					m_uid = m_tempMsgBuf.m_body[0];
+
 				// back to read next message header
 				ReadMessageHeader();
 			}
@@ -94,7 +96,8 @@ void NetConnection<T>::WriteMessage()
 	if (!m_messageOut.empty())
 	{
 		m_message = m_messageOut.pop_front();
-		m_message.m_header.m_source_id = m_uid;
+		if (m_owner == Owner::Client)
+			m_message.m_header.m_source_id = m_uid;
 		WriteMessageHeader();
 	}
 }

@@ -15,8 +15,7 @@ public:
 	void MessageToClient(NetMessage<CustomMessage> msg, uint32_t id);
 	void MessageToAllClient(NetMessage<CustomMessage> msg, std::shared_ptr<NetConnection<CustomMessage>> from);
 	void Disconnect(std::shared_ptr<NetConnection<CustomMessage>> connection);
-	uint32_t Hash(uint32_t plaintext);
-	virtual void Update();
+	void Update();
 public:
 	// context for I/O services
 	asio::io_context m_context;

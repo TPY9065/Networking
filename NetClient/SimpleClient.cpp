@@ -1,10 +1,9 @@
 #include "NetClient.h"
 #include <Windows.h>
 
-enum class Protocal: uint32_t
+enum class Protocal : uint32_t
 {
-	ACK = 0,
-	IDLE,
+	IDLE = 0,
 	PING_SERVER,
 	GET_ID,
 	MESSAGE_ALL,
@@ -15,7 +14,7 @@ enum class Protocal: uint32_t
 class Client : public NetClient<Protocal>
 {
 public:
-	void Update() override
+	void Update()
 	{
 		if (!m_messageIn.empty())
 		{
@@ -23,10 +22,6 @@ public:
 			NetMessage<Protocal> msg = m_messageIn.pop_front();
 			switch (msg.m_header.m_flag)
 			{
-			case Protocal::ACK:
-				std::cout << "Connection is accepted. Your ID is " << std::endl;
-				msg.Print();
-				break;
 			case Protocal::IDLE:
 				std::cout << "IDLE" << std::endl;
 				break;
@@ -43,8 +38,10 @@ public:
 				std::cout << "DISCONNECT" << std::endl;
 				break;
 			default:
+				msg.Print();
 				break;
 			}
+			std::cout << std::endl;
 		}
 	}
 };

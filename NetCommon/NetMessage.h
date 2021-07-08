@@ -2,6 +2,13 @@
 
 #include "NetCommon.h"
 
+enum class HandShake
+{
+	SYN = -1,
+	SYN_ACK = -2,
+	ACK = -3
+};
+
 template<typename T>
 class NetMessageHeader
 {

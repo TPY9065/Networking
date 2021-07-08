@@ -10,10 +10,11 @@ public:
 	~NetClient();
 	void Disconnect();
 	void ConnectToServer();
+	void WaitForAck();
 	void ReadMessage();
 	void WriteMessage();
-	virtual void Update();
-	uint32_t Hash(uint32_t plaintext);
+	void Update();
+	virtual uint32_t Hash(uint32_t plaintext);
 	bool IsConnected();
 public:
 	// context to write message by using asio

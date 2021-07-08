@@ -3,22 +3,22 @@
 #include "NetServer.h"
 
 // initialize an acceptor and open a tcp socket at port
-template<typename CustomMessage>
-NetServer<CustomMessage>::NetServer() : m_acceptor(m_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), 60000)), m_socket(m_context), m_messageIn()
+template<typename T>
+NetServer<T>::NetServer() : m_acceptor(m_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), 60000)), m_socket(m_context), m_messageIn()
 {
 	m_uid = 10000;
 }
 
-template<typename CustomMessage>
-NetServer<CustomMessage>::~NetServer()
+template<typename T>
+NetServer<T>::~NetServer()
 {
 	// stop the context
 	m_context.stop();
 }
 
 // start the server
-template<typename CustomMessage>
-void NetServer<CustomMessage>::Start()
+template<typename T>
+void NetServer<T>::Start()
 {
 	// start thread for io
 	m_thread = std::thread([this]() { m_context.run(); });
@@ -29,8 +29,8 @@ void NetServer<CustomMessage>::Start()
 	WaitForConnection();
 }
 
-template<typename CustomMessage>
-void NetServer<CustomMessage>::WaitForConnection()
+template<typename T>
+void NetServer<T>::WaitForConnection()
 {
 	// creates a socket and initiates an asynchronous accept operation to wait for a new connection.
 	m_acceptor.async_accept(
@@ -40,16 +40,15 @@ void NetServer<CustomMessage>::WaitForConnection()
 			{
 				std::cout << "[SERVER] New Connection: " << socket.remote_endpoint() << "\n";
 				// keep the new connection alive
-				std::shared_ptr<NetConnection<CustomMessage>> newConnecion = std::make_shared<NetConnection<CustomMessage>>(NetConnection<CustomMessage>::Owner::Server, std::move(socket), m_context, m_uid, m_messageIn, m_messageOut);
+				std::shared_ptr<NetConnection<T>> newConnecion = std::make_shared<NetConnection<T>>(NetConnection<T>::Owner::Server, std::move(socket), m_context, m_uid, m_messageIn, m_messageOut);
 				m_connections[m_uid] = std::move(newConnecion);
-
-				// send message to inform client that the connection is accepted
-				NetMessage<CustomMessage> ack(0, (CustomMessage)0, { m_uid });
-				m_connections[m_uid]->m_messageOut.push_back(ack);
-				m_connections[m_uid]->WriteMessage();
 
 				// start reading message from clients
 				ReadMessageFromClient(m_connections[m_uid]);
+
+				// assign id to the connection
+				NetMessage<T> msg(0, static_cast<T>(HandShake::ACK), { m_uid });
+				MessageToClient(msg, m_uid);
 
 				// id for next connection + 1
 				m_uid += 1;
@@ -63,8 +62,8 @@ void NetServer<CustomMessage>::WaitForConnection()
 	);
 }
 
-template<typename CustomMessage>
-void NetServer<CustomMessage>::ReadMessageFromClient(std::shared_ptr<NetConnection<CustomMessage>> connection)
+template<typename T>
+void NetServer<T>::ReadMessageFromClient(std::shared_ptr<NetConnection<T>> connection)
 {
 	// safe guard, prevent client disconnected instantly after connecting to server
 	if (connection->IsAlive())
@@ -73,8 +72,8 @@ void NetServer<CustomMessage>::ReadMessageFromClient(std::shared_ptr<NetConnecti
 		Disconnect(connection);
 }
 
-template<typename CustomMessage>
-void NetServer<CustomMessage>::MessageToClient(NetMessage<CustomMessage> msg, uint32_t id)
+template<typename T>
+void NetServer<T>::MessageToClient(NetMessage<T> msg, uint32_t id)
 {
 	if (m_connections[id]->IsAlive())
 	{
@@ -85,8 +84,8 @@ void NetServer<CustomMessage>::MessageToClient(NetMessage<CustomMessage> msg, ui
 		Disconnect(m_connections[id]);
 }
 
-template<typename CustomMessage>
-void NetServer<CustomMessage>::MessageToAllClient(NetMessage<CustomMessage> msg, std::shared_ptr<NetConnection<CustomMessage>> from)
+template<typename T>
+void NetServer<T>::MessageToAllClient(NetMessage<T> msg, std::shared_ptr<NetConnection<T>> from)
 {
 	// write message to all client, except the one who send message
 	std::deque<std::shared_ptr<NetConnection>> disconnectedConnections;
@@ -100,8 +99,8 @@ void NetServer<CustomMessage>::MessageToAllClient(NetMessage<CustomMessage> msg,
 		Disconnect((*disconnectedConnection));
 }
 
-template<typename CustomMessage>
-void NetServer<CustomMessage>::Disconnect(std::shared_ptr<NetConnection<CustomMessage>> connection)
+template<typename T>
+void NetServer<T>::Disconnect(std::shared_ptr<NetConnection<T>> connection)
 {
 	// remove the pointer from the container/manager first, otherwise remove will not work after reset
 	m_connections[connection->m_uid].reset();
@@ -109,20 +108,14 @@ void NetServer<CustomMessage>::Disconnect(std::shared_ptr<NetConnection<CustomMe
 	connection.reset();
 }
 
-template<typename CustomMessage>
-void NetServer<CustomMessage>::Update()
+template<typename T>
+void NetServer<T>::Update()
 {
 	// check if there is any message sent from the client, if yes, pop out from the message queue and print it on screen
 	if (!m_messageIn.empty())
 	{
 		m_messageIn.pop_front().Print();
 	}
-}
-
-template<typename CustomMessage>
-uint32_t NetServer<CustomMessage>::Hash(uint32_t plaintext)
-{
-	return (11 * plaintext + 4) % 26;
 }
 
 #endif // !_NETSERVER_CPP_

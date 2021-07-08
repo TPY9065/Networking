@@ -28,6 +28,8 @@ public:
 	uint32_t Hash(uint32_t plaintext);
 	bool IsAlive();
 public:
+	// ack to check if the connection is established successfully
+	bool m_ack = false;
 	// id used for identification
 	uint32_t m_uid;
 	// owner of the connetion

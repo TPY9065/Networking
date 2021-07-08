@@ -3,9 +3,9 @@
 #include "NetClient.h"
 
 template<typename T>
-NetClient<T>::NetClient() : m_socket(m_context), m_uid(0)
+NetClient<T>::NetClient() : m_socket(m_context)
 {	
-
+	m_uid = 0;
 }
 
 template<typename T>
@@ -29,12 +29,20 @@ void NetClient<T>::ConnectToServer()
 			{
 				// keep the connection alive
 				m_connection = std::make_unique<NetConnection<T>>(NetConnection<T>::Owner::Client, std::move(m_socket), m_context, 0, m_messageIn, m_messageOut);
+				
+				// start receiving message
 				ReadMessage();
 			}
 			else
 				std::cout << "ConnectToServer(): " << ec.message() << std::endl;
 		}
 	);
+}
+
+template<typename T>
+void NetClient<T>::WaitForAck()
+{
+
 }
 
 template<typename T>
