@@ -64,9 +64,12 @@ void NetClient<T>::WriteMessage()
 	if (m_connection->IsAlive())
 		// if yes, ready to write message
 		m_connection->WriteMessage();
-	else 
+	else
+	{
+		std::cout << "Disconnected from server." << std::endl;
 		// otherwise, disconnect to the server
-		Disconnect();
+		// Disconnect();
+	}
 }
 
 template<typename T>

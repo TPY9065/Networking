@@ -33,6 +33,7 @@ public:
 				break;
 			case Protocal::MESSAGE_ALL:
 				std::cout << "MESSAGE_ALL" << std::endl;
+				MessageToAllClient(msg, msg.m_header.m_source_id);
 				break;
 			case Protocal::DISCONNECT:
 				std::cout << "DISCONNECT" << std::endl;

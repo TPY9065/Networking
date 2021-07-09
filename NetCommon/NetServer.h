@@ -13,7 +13,7 @@ public:
 	void WaitForConnection();
 	void ReadMessageFromClient(std::shared_ptr<NetConnection<CustomMessage>> connection);
 	void MessageToClient(NetMessage<CustomMessage> msg, uint32_t id);
-	void MessageToAllClient(NetMessage<CustomMessage> msg, std::shared_ptr<NetConnection<CustomMessage>> from);
+	void MessageToAllClient(NetMessage<CustomMessage> msg, uint32_t from);
 	void Disconnect(std::shared_ptr<NetConnection<CustomMessage>> connection);
 	void Update();
 public:

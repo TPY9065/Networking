@@ -85,18 +85,30 @@ void NetServer<T>::MessageToClient(NetMessage<T> msg, uint32_t id)
 }
 
 template<typename T>
-void NetServer<T>::MessageToAllClient(NetMessage<T> msg, std::shared_ptr<NetConnection<T>> from)
+void NetServer<T>::MessageToAllClient(NetMessage<T> msg, uint32_t from)
 {
+	// change the source id of message to the client id
+	msg.m_header.m_source_id = from;
 	// write message to all client, except the one who send message
-	std::deque<std::shared_ptr<NetConnection>> disconnectedConnections;
+	std::deque<std::shared_ptr<NetConnection<T>>> disconnectedConnections;
 	for (auto connection = m_connections.begin(); connection != m_connections.end(); connection++)
-		if (connection->second != from && connection->second->IsAlive())
-			connection->second->WriteMessageHeader();
+		if (connection->second->IsAlive())
+		{
+			if (connection->first != from)
+			{
+				connection->second->m_messageOut.push_back(msg);
+				connection->second->WriteMessage();
+			}
+		}
 		else
+		{
+			std::cout << connection->first << " is disconnected." << std::endl;
 			disconnectedConnections.push_back(connection->second);
+		}
 
 	for (auto disconnectedConnection = disconnectedConnections.begin(); disconnectedConnection != disconnectedConnections.end(); disconnectedConnection++)
 		Disconnect((*disconnectedConnection));
+
 }
 
 template<typename T>

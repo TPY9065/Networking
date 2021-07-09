@@ -23,22 +23,31 @@ public:
 			switch (msg.m_header.m_flag)
 			{
 			case Protocal::IDLE:
+				std::cout << "[Server]" << std::endl;
+				msg.Print();
 				std::cout << "IDLE" << std::endl;
 				break;
 			case Protocal::PING_SERVER:
+				std::cout << "[Server]" << std::endl;
+				msg.Print();
 				std::cout << "PING_SERVER" << std::endl;
 				break;
 			case Protocal::GET_ID:
+				std::cout << "[Server]" << std::endl;
+				msg.Print();
 				std::cout << "GET_ID" << std::endl;
 				break;
 			case Protocal::MESSAGE_ALL:
+				std::cout << "Message from Client ID[" << msg.m_header.m_source_id << "]" << std::endl;
+				msg.Print();
 				std::cout << "MESSAGE_ALL" << std::endl;
 				break;
 			case Protocal::DISCONNECT:
+				std::cout << "[Server]" << std::endl;
+				msg.Print();
 				std::cout << "DISCONNECT" << std::endl;
 				break;
 			default:
-				msg.Print();
 				break;
 			}
 			std::cout << std::endl;
