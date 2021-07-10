@@ -12,6 +12,9 @@ NetServer<T>::NetServer() : m_acceptor(m_context, asio::ip::tcp::endpoint(asio::
 template<typename T>
 NetServer<T>::~NetServer()
 {
+	// disconnect to all client
+	for (auto connection = m_connections.begin(); connection != m_connections.end(); connection++)
+		Disconnect(connection->second);
 	// stop the context
 	m_context.stop();
 }

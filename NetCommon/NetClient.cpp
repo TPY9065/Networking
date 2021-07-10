@@ -11,7 +11,8 @@ NetClient<T>::NetClient() : m_socket(m_context)
 template<typename T>
 NetClient<T>::~NetClient()
 {
-
+	Disconnect();
+	m_context.stop();
 }
 
 template<typename T>
