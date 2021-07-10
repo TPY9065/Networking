@@ -46,10 +46,6 @@ void NetServer<T>::WaitForConnection()
 				// start reading message from clients
 				ReadMessageFromClient(m_connections[m_uid]);
 
-				// assign id to the connection
-				NetMessage<T> msg(0, static_cast<T>(HandShake::ACK), { m_uid });
-				MessageToClient(msg, m_uid);
-
 				// id for next connection + 1
 				m_uid += 1;
 			}

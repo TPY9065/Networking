@@ -40,12 +40,6 @@ void NetClient<T>::ConnectToServer()
 }
 
 template<typename T>
-void NetClient<T>::WaitForAck()
-{
-
-}
-
-template<typename T>
 void NetClient<T>::ReadMessage()
 {
 	// check if the connection is still alive

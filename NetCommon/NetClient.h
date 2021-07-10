@@ -10,7 +10,6 @@ public:
 	~NetClient();
 	void Disconnect();
 	void ConnectToServer();
-	void WaitForAck();
 	void ReadMessage();
 	void WriteMessage();
 	void Update();
