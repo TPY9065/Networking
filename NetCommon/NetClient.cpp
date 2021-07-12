@@ -18,7 +18,6 @@ NetClient<T>::~NetClient()
 template<typename T>
 void NetClient<T>::ConnectToServer()
 {
-	m_thread = std::thread([this]() {m_context.run(); });
 	// define the endpoint to be connected
 	asio::ip::address address = asio::ip::make_address("127.0.0.1");
 	asio::ip::tcp::endpoint endpoint(address, 60000);
@@ -38,6 +37,8 @@ void NetClient<T>::ConnectToServer()
 				std::cout << "ConnectToServer(): " << ec.message() << std::endl;
 		}
 	);
+
+	m_thread = std::thread([this]() {m_context.run(); });
 }
 
 template<typename T>
