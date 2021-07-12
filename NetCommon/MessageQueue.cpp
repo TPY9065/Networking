@@ -32,8 +32,12 @@ template<typename T>
 NetMessage<T> MessageQueue<T>::pop_back()
 {
 	m_mutex.lock();
-	NetMessage<T> msg = m_messageQueue.back();
-	m_messageQueue.pop_back();
+	NetMessage<T> msg;
+	if (!m_messageQueue.empty())
+	{
+		msg = m_messageQueue.back();
+		m_messageQueue.pop_back();
+	}
 	m_mutex.unlock();
 	return msg;
 }
@@ -42,8 +46,12 @@ template<typename T>
 NetMessage<T> MessageQueue<T>::pop_front()
 {
 	m_mutex.lock();
-	NetMessage<T> msg = m_messageQueue.front();
-	m_messageQueue.pop_front();
+	NetMessage<T> msg;
+	if (!m_messageQueue.empty())
+	{
+		msg = m_messageQueue.front();
+		m_messageQueue.pop_front();
+	}
 	m_mutex.unlock();
 	return msg;
 }
@@ -51,24 +59,28 @@ NetMessage<T> MessageQueue<T>::pop_front()
 template<typename T>
 NetMessage<T>& MessageQueue<T>::back()
 {
+	std::lock_guard<std::mutex> lock(m_mutex);
 	return m_messageQueue.back();
 }
 
 template<typename T>
 NetMessage<T>& MessageQueue<T>::front()
 {
+	std::lock_guard<std::mutex> lock(m_mutex);
 	return m_messageQueue.front();
 }
 
 template<typename T>
 bool MessageQueue<T>::empty()
 {
+	std::lock_guard<std::mutex> lock(m_mutex);
 	return m_messageQueue.empty();
 }
 
 template<typename T>
 uint32_t MessageQueue<T>::size()
 {
+	std::lock_guard<std::mutex> lock(m_mutex);
 	return m_messageQueue.size();
 }
 
