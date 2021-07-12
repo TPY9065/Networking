@@ -11,7 +11,7 @@ public:
 	void Disconnect();
 	void ConnectToServer();
 	void ReadMessage();
-	void WriteMessage();
+	void WriteMessage(NetMessage<CustomMessage> msg);
 	void Update();
 	virtual uint32_t Hash(uint32_t plaintext);
 	bool IsConnected();

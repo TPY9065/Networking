@@ -83,8 +83,7 @@ int main()
 			if (GetAsyncKeyState(0x41) == 0 && Apressed)
 			{
 				Apressed = false;
-				client.m_messageOut.push_back(msgA);
-				client.WriteMessage();
+				client.WriteMessage(msgA);
 			}
 			if (GetAsyncKeyState(0x42) < 0 && !Bpressed && !Apressed && !Cpressed && !Dpressed && !Epressed)
 			{
@@ -94,8 +93,7 @@ int main()
 			if (GetAsyncKeyState(0x42) == 0 && Bpressed)
 			{
 				Bpressed = false;
-				client.m_messageOut.push_back(msgB);
-				client.WriteMessage();
+				client.WriteMessage(msgB);
 			}
 			if (GetAsyncKeyState(0x43) < 0 && !Cpressed && !Bpressed && !Apressed && !Dpressed && !Epressed)
 			{
@@ -105,8 +103,7 @@ int main()
 			if (GetAsyncKeyState(0x43) == 0 && Cpressed)
 			{
 				Cpressed = false;
-				client.m_messageOut.push_back(msgC);
-				client.WriteMessage();
+				client.WriteMessage(msgC);
 			}
 			if (GetAsyncKeyState(0x44) < 0 && !Dpressed && !Bpressed && !Cpressed && !Apressed && !Epressed)
 			{
@@ -116,8 +113,7 @@ int main()
 			if (GetAsyncKeyState(0x44) == 0 && Dpressed)
 			{
 				Dpressed = false;
-				client.m_messageOut.push_back(msgD);
-				client.WriteMessage();
+				client.WriteMessage(msgD);
 			}
 			if (GetAsyncKeyState(0x45) < 0 && !Epressed && !Bpressed && !Cpressed && !Dpressed && !Apressed)
 			{
@@ -127,8 +123,7 @@ int main()
 			if (GetAsyncKeyState(0x45) == 0 && Epressed)
 			{
 				Epressed = false;
-				client.m_messageOut.push_back(msgE);
-				client.WriteMessage();
+				client.WriteMessage(msgE);
 			}
 		}
 		client.Update();
