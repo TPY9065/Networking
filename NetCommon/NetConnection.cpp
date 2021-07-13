@@ -92,14 +92,18 @@ void NetConnection<T>::ReadMessageBody()
 template<typename T>
 void NetConnection<T>::WriteMessage()
 {
-	// check if there is any waiting message for sending, if yes, ready to write message header
-	if (!m_messageOut.empty())
-	{
-		m_message = m_messageOut.pop_front();
-		if (m_owner == Owner::Client)
-			m_message.m_header.m_source_id = m_uid;
-		WriteMessageHeader();
-	}
+	// wait until the current asyn read or write finish
+	asio::post(m_context, [this]()
+		{
+			if (!m_messageOut.empty())
+			{
+				m_message = m_messageOut.pop_front();
+				if (m_owner == Owner::Client)
+					m_message.m_header.m_source_id = m_uid;
+				WriteMessageHeader();
+			}
+		}
+	);
 }
 
 template<typename T>
