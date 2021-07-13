@@ -13,6 +13,8 @@ NetClient<T>::~NetClient()
 {
 	Disconnect();
 	m_context.stop();
+	if (m_thread.joinable())
+		m_thread.join();
 }
 
 template<typename T>
@@ -48,9 +50,6 @@ void NetClient<T>::ReadMessage()
 	if (m_connection->IsAlive())
 		// if yes, ready to read message
 		m_connection->ReadMessageHeader();
-	else
-		// otherwise, disconnect to the server
-		Disconnect();
 }
 
 template<typename T>
@@ -63,23 +62,15 @@ void NetClient<T>::WriteMessage(NetMessage<T> msg)
 		// if yes, ready to write message
 		m_connection->WriteMessage();
 	}
-	else
-	{
-		std::cout << "Disconnected from server." << std::endl;
-		// otherwise, disconnect to the server
-		// Disconnect();
-	}
 }
 
 template<typename T>
 void NetClient<T>::Disconnect()
 {
-	// check if the current connection is alive, if yes, disconnected it, otherwise, do nothing
-	if (m_connection->IsAlive())
-	{
-		m_connection->Disconnect();
-		m_connection.reset();
-	}
+	// disconnect the connection
+	m_connection->Disconnect();
+	// destroy the object pointer
+	m_connection.release();
 }
 
 template<typename T>

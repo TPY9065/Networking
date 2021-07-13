@@ -147,8 +147,9 @@ void NetConnection<T>::WriteMessageBody()
 template<typename T>
 void NetConnection<T>::Disconnect()
 {
-	if (m_socket.is_open())
-		m_socket.close();
+	// wait the io_context the finish the current job first
+	if (IsAlive())
+		asio::post(m_context, [this]() { m_socket.close(); });
 	if (m_owner == Owner::Server)
 		std::cout << "[SERVER] Client ID[" << m_uid << "] is disconnected." << std::endl;
 	else if (m_owner == Owner::Client)
