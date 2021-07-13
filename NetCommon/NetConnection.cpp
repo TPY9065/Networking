@@ -98,8 +98,6 @@ void NetConnection<T>::WriteMessage()
 			if (!m_messageOut.empty())
 			{
 				m_message = m_messageOut.pop_front();
-				if (m_owner == Owner::Client)
-					m_message.m_header.m_source_id = m_uid;
 				WriteMessageHeader();
 			}
 		}
