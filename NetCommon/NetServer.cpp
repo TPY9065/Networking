@@ -14,7 +14,7 @@ NetServer<T>::~NetServer()
 {
 	// disconnect to all client
 	for (auto connection = m_connections.begin(); connection != m_connections.end(); connection++)
-		Disconnect(connection->second);
+		Disconnect(connection->first);
 	// stop the context
 	m_context.stop();
 }
@@ -47,7 +47,7 @@ void NetServer<T>::WaitForConnection()
 				m_connections[m_uid] = std::move(newConnecion);
 
 				// start reading message from clients
-				ReadMessageFromClient(m_connections[m_uid]);
+				ReadMessageFromClient(m_uid);
 
 				// id for next connection + 1
 				m_uid += 1;
@@ -62,13 +62,13 @@ void NetServer<T>::WaitForConnection()
 }
 
 template<typename T>
-void NetServer<T>::ReadMessageFromClient(std::shared_ptr<NetConnection<T>> connection)
+void NetServer<T>::ReadMessageFromClient(uint32_t id)
 {
 	// safe guard, prevent client disconnected instantly after connecting to server
-	if (connection->IsAlive())
-		connection->ReadMessageHeader();
+	if (m_connections[id]->IsAlive())
+		m_connections[id]->ReadMessageHeader();
 	else
-		Disconnect(connection);
+		Disconnect(id);
 }
 
 template<typename T>
@@ -89,7 +89,7 @@ void NetServer<T>::MessageToAllClient(NetMessage<T> msg, uint32_t from)
 	// change the source id of message to the client id
 	msg.m_header.m_source_id = from;
 	// write message to all client, except the one who send message
-	std::deque<std::shared_ptr<NetConnection<T>>> disconnectedConnections;
+	std::deque<uint32_t> disconnectedConnections;
 	for (auto connection = m_connections.begin(); connection != m_connections.end(); connection++)
 		if (connection->second->IsAlive())
 		{
@@ -102,7 +102,7 @@ void NetServer<T>::MessageToAllClient(NetMessage<T> msg, uint32_t from)
 		else
 		{
 			std::cout << connection->first << " is disconnected." << std::endl;
-			disconnectedConnections.push_back(connection->second);
+			disconnectedConnections.push_back(connection->first);
 		}
 
 	for (auto disconnectedConnection = disconnectedConnections.begin(); disconnectedConnection != disconnectedConnections.end(); disconnectedConnection++)
@@ -111,14 +111,12 @@ void NetServer<T>::MessageToAllClient(NetMessage<T> msg, uint32_t from)
 }
 
 template<typename T>
-void NetServer<T>::Disconnect(std::shared_ptr<NetConnection<T>> connection)
+void NetServer<T>::Disconnect(uint32_t id)
 {
 	// disconnect the connection
-	m_connections[connection->m_uid]->Disconnect();
+	m_connections[id]->Disconnect();
 	// remove the pointer from the container/manager first, otherwise remove will not work after reset
-	m_connections[connection->m_uid].reset();
-	// Destroy the objcet point by the pointer
-	connection.reset();
+	m_connections[id].reset();
 }
 
 template<typename T>

@@ -11,10 +11,10 @@ public:
 	~NetServer();
 	void Start();
 	void WaitForConnection();
-	void ReadMessageFromClient(std::shared_ptr<NetConnection<CustomMessage>> connection);
+	void ReadMessageFromClient(uint32_t id);
 	void MessageToClient(NetMessage<CustomMessage> msg, uint32_t id);
 	void MessageToAllClient(NetMessage<CustomMessage> msg, uint32_t from);
-	void Disconnect(std::shared_ptr<NetConnection<CustomMessage>> connection);
+	void Disconnect(uint32_t id);
 	void Update();
 public:
 	// context for I/O services
