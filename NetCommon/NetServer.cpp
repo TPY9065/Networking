@@ -80,7 +80,7 @@ void NetServer<T>::MessageToClient(NetMessage<T> msg, uint32_t id)
 		m_connections[id]->WriteMessage();
 	}
 	else
-		Disconnect(m_connections[id]);
+		Disconnect(id);
 }
 
 template<typename T>
