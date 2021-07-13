@@ -113,6 +113,8 @@ void NetServer<T>::MessageToAllClient(NetMessage<T> msg, uint32_t from)
 template<typename T>
 void NetServer<T>::Disconnect(std::shared_ptr<NetConnection<T>> connection)
 {
+	// disconnect the connection
+	m_connections[connection->m_uid]->Disconnect();
 	// remove the pointer from the container/manager first, otherwise remove will not work after reset
 	m_connections[connection->m_uid].reset();
 	// Destroy the objcet point by the pointer
