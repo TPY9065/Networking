@@ -23,13 +23,13 @@ NetServer<T>::~NetServer()
 template<typename T>
 void NetServer<T>::Start()
 {
-	// start thread for io
-	m_thread = std::thread([this]() { m_context.run(); });
-
 	std::cout << "[SERVER] Started!\n";
 
 	// start waiting connection
 	WaitForConnection();
+	
+	// start thread for io
+	m_thread = std::thread([this]() { m_context.run(); });
 }
 
 template<typename T>
